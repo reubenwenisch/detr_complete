@@ -84,6 +84,15 @@ def create_image_annotation(file_name, width, height, image_id):
 
     return images
 
+def create_panoptic_image_annotation(file_name, width, height, image_id):
+    images = {
+        "file_name": file_name + '.jpg',
+        "height": height,
+        "width": width,
+        "id": image_id
+    }
+    return images
+
 def create_annotation_format(polygon, segmentation, image_id, category_id, annotation_id):
     # print("multi_poly.bounds inside", polygon.bounds)
     min_x, min_y, max_x, max_y = polygon.bounds
@@ -105,7 +114,43 @@ def create_annotation_format(polygon, segmentation, image_id, category_id, annot
 
     return annotation
 
+def create_panoptic_annotation_format(image_id, file_name):
+    # print("multi_poly.bounds inside", polygon.bounds)
+    # min_x, min_y, max_x, max_y = polygon.bounds
+    # width = max_x - min_x
+    # height = max_y - min_y
+    # bbox = (int(min_x), int(min_y), int(width), int(height))
+    # bbox = np.clip(bbox, 0, np.inf).astype(int).tolist()
+    # area = polygon.area
+    segments_infos = [{}]
+    # segments_info = {
+    #     "id": annotation_id,
+    #     "category_id": category_id,
+    #     "iscrowd": 0,
+    #     "bbox": bbox,
+    #     "area": area,
+    # }
+    annotation = {
+        "segments_info": segments_infos,
+        "file_name": file_name,
+        "image_id": image_id,
+    }
+    
+    return annotation
+
 def get_coco_json_format():
+    # Standard COCO format 
+    coco_format = {
+        "info": {},
+        "licenses": [],
+        "images": [{}],
+        "categories": [{}],
+        "annotations": [{}]
+    }
+
+    return coco_format
+
+def get_coco_panoptic_json_format():
     # Standard COCO format 
     coco_format = {
         "info": {},

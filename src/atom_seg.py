@@ -7,6 +7,7 @@ import cv2
 
 annotation_id = 0
 black = [0,0,0]
+
 def create_annotation_format(masks, category_id, image_id):
     global annotation_id
     annotation = {
@@ -57,6 +58,15 @@ def create_image_annotation(file_name, width, height, image_id):
     }
     return images
 
+def create_image_panpotic_annotation(file_name, width, height, image_id):
+    images = {
+        "file_name": file_name,
+        "height": int(height),
+        "width": int(width),
+        "id": int(image_id)
+    }
+    return images
+
 def get_coco_json_format():
     # Standard COCO format 
     coco_format = {
@@ -68,3 +78,29 @@ def get_coco_json_format():
     }
 
     return coco_format
+
+def get_coco_json_panoptic_format():
+    # Standard COCO format 
+    coco_format = {
+        "info": {},
+        "licenses": [],
+        "images": [{}],
+        "categories": [{}],
+        "annotations": [{}]
+    }
+
+    return coco_format
+
+def create_seg_info(result):
+    return result["segments_info"]
+
+annotation_id_panoptic = 0
+
+def create_panoptic_annotation_format(image_id, file_name, result):
+    segments_info =create_seg_info(result)
+    annotation = {
+        "segments_info": segments_info,
+        "file_name": file_name,
+        "image_id": image_id,
+    }
+    return annotation
