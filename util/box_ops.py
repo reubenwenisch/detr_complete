@@ -2,6 +2,7 @@
 """
 Utilities for bounding box manipulation and GIoU.
 """
+from matplotlib.pyplot import box
 import torch
 from torchvision.ops.boxes import box_area
 
@@ -48,10 +49,9 @@ def generalized_box_iou(boxes1, boxes2):
     """
     # degenerate boxes gives inf / nan results
     # so do an early check
-    if (boxes2[:, 2:] <= boxes2[:, :2]).all():
-        print(boxes2)
-    assert (boxes1[:, 2:] >= boxes1[:, :2]).all()
-    assert (boxes2[:, 2:] >= boxes2[:, :2]).all()
+    # if (boxes2[:, 2:] <= boxes2[:, :2]).all():
+    assert (boxes1[:, 2:] >= boxes1[:, :2]).all(), f"bbox size is {boxes1}"
+    assert (boxes2[:, 2:] >= boxes2[:, :2]).all(), f"bbox size is {boxes2}"
     iou, union = box_iou(boxes1, boxes2)
 
     lt = torch.min(boxes1[:, None, :2], boxes2[:, :2])
@@ -87,4 +87,4 @@ def masks_to_boxes(masks):
     y_max = y_mask.flatten(1).max(-1)[0]
     y_min = y_mask.masked_fill(~(masks.bool()), 1e8).flatten(1).min(-1)[0]
 
-    return torch.stack([x_min, y_min, x_max, y_max], 1)
+    return torch.stack([torch.minimum(x_min, x_max), torch.minimum(y_min, y_max), torch.maximum(x_min, x_max), torch.maximum(y_min, y_max)], 1)

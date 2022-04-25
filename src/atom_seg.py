@@ -92,7 +92,7 @@ def get_coco_json_panoptic_format():
     return coco_format
 
 def create_seg_info(result):
-    for i, segment in enumerate(result["segments_info"]):
+    # for i, segment in enumerate(result["segments_info"]):
         
     return result["segments_info"]
 
