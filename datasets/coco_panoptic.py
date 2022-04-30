@@ -35,6 +35,7 @@ class CocoPanoptic:
         ann_info = self.coco['annotations'][idx] if "annotations" in self.coco else self.coco['images'][idx]
         img_path = Path(self.img_folder) / ann_info['file_name'].replace('.png', '.jpg')
         ann_path = Path(self.ann_folder) / ann_info['file_name']
+        print("file_name", ann_info['file_name'])
 
         img = Image.open(img_path).convert('RGB')
         w, h = img.size
@@ -54,7 +55,8 @@ class CocoPanoptic:
             target['masks'] = masks
         target['labels'] = labels
 
-        target["boxes"] = masks_to_boxes(masks)
+        # target["boxes"] = masks_to_boxes(masks)
+        target["boxes"] = masks_to_boxes(masks.permute(2,1,0)[0])
 
         target['size'] = torch.as_tensor([int(h), int(w)])
         target['orig_size'] = torch.as_tensor([int(h), int(w)])

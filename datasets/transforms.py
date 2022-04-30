@@ -49,7 +49,8 @@ def crop(image, target, region):
             keep = torch.all(cropped_boxes[:, 1, :] > cropped_boxes[:, 0, :], dim=1)
         else:
             keep = target['masks'].flatten(1).any(1)
-
+        print("target is",  target)
+        print("keep is", keep)
         for field in fields:
             if field != 'iscrowd':
                 target[field] = target[field][keep]

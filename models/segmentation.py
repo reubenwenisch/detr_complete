@@ -353,7 +353,7 @@ class PostProcessPanoptic(nn.Module):
             segments_info = []
             for i, a in enumerate(area):
                 cat = cur_classes[i].item()
-                segments_info.append({"id": i, "isthing": self.is_thing_map[cat], "category_id": cat, "area": a})
+                segments_info.append({"id": i, "isthing": self.is_thing_map[cat], "category_id": cat, "area": a, "bbox": raw_boxes[keep], "iscrowd": 0})
             del cur_classes
 
             with io.BytesIO() as out:
