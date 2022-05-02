@@ -75,10 +75,10 @@ class HungarianMatcher(nn.Module):
         cost_giou = -generalized_box_iou(box_cxcywh_to_xyxy(out_bbox), box_cxcywh_to_xyxy(tgt_bbox))
         # print("self.cost_bbox", self.cost_bbox.shape)
         # print("cost_bbox", cost_bbox.shape)
-        # print("********************************")
-        print("self.cost_bbox * cost_bbox", (self.cost_bbox * cost_bbox).shape)
-        print("self.cost_class * cost_class", (self.cost_class * cost_class).shape)
-        print("self.cost_giou * cost_giou", (self.cost_giou * cost_giou).shape)
+        # # print("********************************")
+        # print("self.cost_bbox * cost_bbox", (self.cost_bbox * cost_bbox).shape)
+        # print("self.cost_class * cost_class", (self.cost_class * cost_class).shape)
+        # print("self.cost_giou * cost_giou", (self.cost_giou * cost_giou).shape)
         # Final cost matrix
         C = self.cost_bbox * cost_bbox + self.cost_class * cost_class + self.cost_giou * cost_giou
         C = C.view(bs, num_queries, -1).cpu()

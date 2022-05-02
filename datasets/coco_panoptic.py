@@ -55,8 +55,8 @@ class CocoPanoptic:
             target['masks'] = masks
         target['labels'] = labels
 
-        # target["boxes"] = masks_to_boxes(masks)
-        target["boxes"] = masks_to_boxes(masks.permute(2,1,0)[0])
+        target["boxes"] = masks_to_boxes(masks)
+        # target["boxes"] = masks_to_boxes(masks.permute(2,1,0))
 
         target['size'] = torch.as_tensor([int(h), int(w)])
         target['orig_size'] = torch.as_tensor([int(h), int(w)])
@@ -67,7 +67,7 @@ class CocoPanoptic:
 
         if self.transforms is not None:
             img, target = self.transforms(img, target)
-
+        # print("TARGET", target["boxes"])
         return img, target
 
     def __len__(self):

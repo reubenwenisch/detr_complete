@@ -354,6 +354,24 @@ def create_annotation_format(masks, category_id, image_id):
     annotation_id += 1
     return annotation
 
+def create_annotation_format2(masks, category_id, image_id):
+    global annotation_id
+    kernel = np.ones((2, 2), np.uint8)
+    masks = cv2.dilate(masks, kernel, iterations=1)
+    C, h = cv2.findContours(masks, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    seg = [[float(x) for x in contour.flatten()] for contour in C]
+    seg = [cont for cont in seg if len(cont) > 4]  # filter all polygons that are boxes
+    rle = mask.frPyObjects(seg, masks.shape[0], masks.shape[1])
+    annotation_id += 1
+    return {
+        'area': float(sum(mask.area(rle))),
+        'bbox': list(mask.toBbox(rle).tolist()), #'bbox': list(mask.toBbox(rle)[0]),
+        'category_id': int(category_id),
+        'id': int(annotation_id),
+        "image_id": int(image_id),
+        'iscrowd': int(0),
+        'segmentation': seg
+    }
 
 def create_category_annotation(category_dict):
     # category_list = []
@@ -415,10 +433,11 @@ def get_coco_json_panoptic_format():
 seg_id = 0
 
 def create_seg_info(result):
-    # global seg_id
-    # for i, info in enumerate(result["segments_info"]):
-    #     result["segments_info"][i]["id"] = seg_id
-    #     seg_id +=1
+    global seg_id
+    for i, info in enumerate(result["segments_info"]):
+        result["segments_info"][i]["id"] = seg_id
+        seg_id +=1
+        result["segments_info"][i]["iscrowd"] = int(0)
     return result["segments_info"]
 
 annotation_id_panoptic = 0
