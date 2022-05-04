@@ -10,7 +10,6 @@ from panopticapi.utils import rgb2id
 from util.box_ops import masks_to_boxes
 
 from .coco import make_coco_transforms
-
 custom_ids = [1, 2, 3, 92, 93, 95, 100, 107, 109, 112, 118, 119, 122, 125, 128, 130, 133, 138, 141, 144, 145, 147, 148, 149, 151, 154, 155, 156, 159, 161, 166, 168, 171, 175, 176, 177, 178, 180, 181, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200]
 
 class CocoPanoptic:
@@ -40,20 +39,15 @@ class CocoPanoptic:
 
         img = Image.open(img_path).convert('RGB')
         w, h = img.size
-        remove_id = np.NaN # random number non class
         if "segments_info" in ann_info:
             masks = np.asarray(Image.open(ann_path), dtype=np.uint32)
             masks = rgb2id(masks)
-
+            print("ann_info['segments_info']",ann_info['segments_info'])
             ids = np.array([ann['id'] for ann in ann_info['segments_info']])
             masks = masks == ids[:, None, None]
 
             masks = torch.as_tensor(masks, dtype=torch.uint8)
             labels = torch.tensor([ann['category_id'] for ann in ann_info['segments_info']], dtype=torch.int64)
-            # # print("labels",labels)
-            for i, label in enumerate(labels):
-                if int(label) not in custom_ids:
-                    labels[i] = 0
 
         target = {}
         target['image_id'] = torch.tensor([ann_info['image_id'] if "image_id" in ann_info else ann_info["id"]])
@@ -62,21 +56,16 @@ class CocoPanoptic:
         target['labels'] = labels
 
         target["boxes"] = masks_to_boxes(masks)
-        # target["boxes"] = masks_to_boxes(masks.permute(2,1,0))
-        # target["boxes"] = target["boxes"][remove_id]
-        # if remove_id:
-        #     target["boxes"] = torch.cat([target["boxes"][0:remove_id], target["boxes"][remove_id+1:]])
-        #     print("Removing ID", remove_id)
+
         target['size'] = torch.as_tensor([int(h), int(w)])
         target['orig_size'] = torch.as_tensor([int(h), int(w)])
         if "segments_info" in ann_info:
             for name in ['iscrowd', 'area']:
-            # for name in ['area']:
                 target[name] = torch.tensor([ann[name] for ann in ann_info['segments_info']])
 
         if self.transforms is not None:
             img, target = self.transforms(img, target)
-        # print("TARGET", target["boxes"])
+
         return img, target
 
     def __len__(self):

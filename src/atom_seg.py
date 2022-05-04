@@ -490,7 +490,8 @@ def create_seg_info(result):
         labels = info["category_id"]
         # for label in labels: # Rmove non class annotations
         if int(labels) not in custom_ids:
-            result["segments_info"][i] = [] #result["segments_info"][result["segments_info"]!=result["segments_info"][i]]
+            result["segments_info"].remove(result["segments_info"][i])
+            # result["segments_info"][i] = [] #result["segments_info"][result["segments_info"]!=result["segments_info"][i]]
         #     print("Removed label", result["segments_info"])
     return result["segments_info"]
 
