@@ -8,7 +8,26 @@ import cv2
 annotation_id = 0
 black = [0,0,0]
 
-category_list = [{
+category_list = [
+        {
+            "supercategory": "rebar",
+            "isthing": 1,
+            "id": 1,
+            "name": "rebar"
+        },
+        {
+            "supercategory": "spall",
+            "isthing": 1,
+            "id": 2,
+            "name": "spall"
+        },
+        {
+            "supercategory": "crack",
+            "isthing": 1,
+            "id": 3,
+            "name": "crack"
+        }, 
+        {
             "supercategory": "textile",
             "isthing": 0,
             "id": 92,
@@ -378,13 +397,13 @@ def create_category_annotation(category_dict):
     global category_list
     # category_list = category
 
-    for key, value in category_dict.items():
-        category = {
-            "supercategory": key,
-            "id": int(value),
-            "name": key
-        }
-        category_list.append(category)
+    # for key, value in category_dict.items():
+    #     category = {
+    #         "supercategory": key,
+    #         "id": int(value),
+    #         "name": key
+    #     }
+    #     category_list.append(category)
 
     return category_list
 
@@ -430,14 +449,49 @@ def get_coco_json_panoptic_format():
 
     return coco_format
 
+def rgb2id(color):
+    if isinstance(color, np.ndarray) and len(color.shape) == 3:
+        if color.dtype == np.uint8:
+            color = color.astype(np.int32)
+        return color[:, :, 0] + 256 * color[:, :, 1] + 256 * 256 * color[:, :, 2]
+    return int(color[0] + 256 * color[1] + 256 * 256 * color[2])
+
 seg_id = 0
+
+from panopticapi.utils import IdGenerator
+custom_ids = [1, 2, 3, 92, 93, 95, 100, 107, 109, 112, 118, 119, 122, 125, 128, 130, 133, 138, 141, 144, 145, 147, 148, 149, 151, 154, 155, 156, 159, 161, 166, 168, 171, 175, 176, 177, 178, 180, 181, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200]
+
+# # print("labels",labels)
+#             for i, label in enumerate(labels):
+#                 if int(label) not in custom_ids:
+#                     labels = labels[labels!=label]
+#                     remove_id = [labels!=label]
+#                     # labels.pop(int(label))
+#             print("##############remove_id",remove_id)
+
+def get_color(cat_id):
+    def random_color(base, max_dist=30):
+        new_color = base + np.random.randint(low=-max_dist,
+                                             high=max_dist+1,
+                                             size=3)
+        return tuple(np.maximum(0, np.minimum(255, new_color)))
 
 def create_seg_info(result):
     global seg_id
+    # id_generator = IdGenerator(category_list)
     for i, info in enumerate(result["segments_info"]):
-        result["segments_info"][i]["id"] = seg_id
+        # segment_id, color = id_generator.get_id_and_color(result["segments_info"][i]['category_id'])
+        # cat_id = result["segments_info"][i]['category_id']
+        # color = get_color(cat_id)
+        # segment_id = rgb2id(color)
+        result["segments_info"][i]["id"] = seg_id #segment_id
         seg_id +=1
         result["segments_info"][i]["iscrowd"] = int(0)
+        labels = info["category_id"]
+        # for label in labels: # Rmove non class annotations
+        if int(labels) not in custom_ids:
+            result["segments_info"][i] = [] #result["segments_info"][result["segments_info"]!=result["segments_info"][i]]
+        #     print("Removed label", result["segments_info"])
     return result["segments_info"]
 
 annotation_id_panoptic = 0
