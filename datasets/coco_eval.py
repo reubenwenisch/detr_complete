@@ -17,7 +17,7 @@ from pycocotools.coco import COCO
 import pycocotools.mask as mask_util
 
 from util.misc import all_gather
-
+from .coco_panoptic import custom_ids
 
 class CocoEvaluator(object):
     def __init__(self, coco_gt, iou_types):
@@ -35,6 +35,10 @@ class CocoEvaluator(object):
 
     def update(self, predictions):
         img_ids = list(np.unique(list(predictions.keys())))
+        print("img_ids", img_ids)
+        for ids in img_ids:
+            if ids not in custom_ids:
+                img_ids.remove(ids)
         self.img_ids.extend(img_ids)
 
         for iou_type in self.iou_types:

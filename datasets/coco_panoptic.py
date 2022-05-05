@@ -42,7 +42,16 @@ class CocoPanoptic:
         if "segments_info" in ann_info:
             masks = np.asarray(Image.open(ann_path), dtype=np.uint32)
             masks = rgb2id(masks)
-            print("ann_info['segments_info']",ann_info['segments_info'])
+            # print("ann_info['segments_info']",ann_info['segments_info'])
+            # try:
+            #     print("Type of ids", [type(ann['id']) for ann in ann_info['segments_info']])
+            # except:
+            #     print("Seg", ann_info['segments_info'])
+            # ids = []
+            # for ann in ann_info['segments_info']:
+            #     if ann !=[]:
+            #         ids.append(ann['id'])
+            # ids = np.array(ids)
             ids = np.array([ann['id'] for ann in ann_info['segments_info']])
             masks = masks == ids[:, None, None]
 
@@ -60,8 +69,9 @@ class CocoPanoptic:
         target['size'] = torch.as_tensor([int(h), int(w)])
         target['orig_size'] = torch.as_tensor([int(h), int(w)])
         if "segments_info" in ann_info:
-            # for name in ['iscrowd', 'area']:
-            for name in ['area']:
+            for name in ['iscrowd', 'area']:
+                # if ann_info['segments_info'] != []
+            # for name in ['area']:
                 target[name] = torch.tensor([ann[name] for ann in ann_info['segments_info']])
 
         if self.transforms is not None:
