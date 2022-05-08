@@ -35,13 +35,13 @@ class CocoPanoptic:
         ann_info = self.coco['annotations'][idx] if "annotations" in self.coco else self.coco['images'][idx]
         img_path = Path(self.img_folder) / ann_info['file_name'].replace('.png', '.jpg')
         ann_path = Path(self.ann_folder) / ann_info['file_name']
-        print("file_name", ann_info['file_name'])
+        # print("file_name", ann_info['file_name'])
 
         img = Image.open(img_path).convert('RGB')
         w, h = img.size
         if "segments_info" in ann_info:
             masks = np.asarray(Image.open(ann_path), dtype=np.uint32)
-            masks = rgb2id(masks)
+            masks = rgb2id(masks) # Todo check this again
             # print("ann_info['segments_info']",ann_info['segments_info'])
             # try:
             #     print("Type of ids", [type(ann['id']) for ann in ann_info['segments_info']])
@@ -69,9 +69,11 @@ class CocoPanoptic:
         target['size'] = torch.as_tensor([int(h), int(w)])
         target['orig_size'] = torch.as_tensor([int(h), int(w)])
         if "segments_info" in ann_info:
-            for name in ['iscrowd', 'area']:
-                # if ann_info['segments_info'] != []
-            # for name in ['area']:
+            target['iscrowd'] = torch.tensor(0)
+            # for name in ['iscrowd', 'area']:
+            for name in ['area']:
+                # if ann_info['segments_info'] != []:
+                    # print("ann_info['segments_info']", ann_info['segments_info'])
                 target[name] = torch.tensor([ann[name] for ann in ann_info['segments_info']])
 
         if self.transforms is not None:

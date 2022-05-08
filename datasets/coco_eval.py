@@ -35,7 +35,7 @@ class CocoEvaluator(object):
 
     def update(self, predictions):
         img_ids = list(np.unique(list(predictions.keys())))
-        print("img_ids", img_ids)
+        # print("img_ids", img_ids)
         for ids in img_ids:
             if ids not in custom_ids:
                 img_ids.remove(ids)
@@ -223,6 +223,9 @@ def evaluate(self):
         print('useSegm (deprecated) is not None. Running {} evaluation'.format(p.iouType))
     # print('Evaluate annotation type *{}*'.format(p.iouType))
     p.imgIds = list(np.unique(p.imgIds))
+    for label in p.imgIds:
+        if label not in custom_ids:
+            p.imgIds.remove(label)
     if p.useCats:
         p.catIds = list(np.unique(p.catIds))
     p.maxDets = sorted(p.maxDets)
@@ -233,6 +236,7 @@ def evaluate(self):
     catIds = p.catIds if p.useCats else [-1]
     print("imgIds",p.imgIds)
     print("catIds",catIds)
+
     if p.iouType == 'segm' or p.iouType == 'bbox':
         computeIoU = self.computeIoU
     elif p.iouType == 'keypoints':
